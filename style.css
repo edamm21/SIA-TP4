@@ -1,0 +1,79 @@
+* {
+    font-family: 'Anonymous Pro', monospace;
+}
+
+header {
+    margin-top: 20px;
+    text-align: center;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.instructions {
+    text-align: left;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.output-container {
+    max-width: 300px;
+    text-align: center;
+}
+
+.learning-container {
+    width: 250px;
+    text-align: center;
+    margin-right: 200px;
+}
+
+.output-matrix {
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 17px;
+}
+
+.learning-matrix {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    width: max-content;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.off {
+    background-color: white;
+}
+
+.on {
+    background-color: green;
+}
+
+.item, .itemO {
+    border: 1px solid black;
+    height: 40px;
+    width: 40px;
+}
+
+.button-group {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn {
+    margin-bottom: 10px;
+}

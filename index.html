@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&display=swap" rel="stylesheet"> 
+    <script src="app.js" defer></script>
+    <title>Letter creator</title>
+</head>
+<body>
+    <header>
+        <h2>TP4 - Ej 2 - Modelo de Hopfield</h2>
+        <div class="instructions">
+            <hr>
+            <h5>Instrucciones de uso:</h5>
+            <p><strong>Creación de patrones</strong></p>
+            <p>Para crear patrones, seleccionar los cuadrados que representan las celdas activas (valor = 1) de la matriz del patrón.</p>
+            <p><strong>Ejecución de algoritmo</strong></p>
+            <p>Una vez agregado al menos 1 patrón, podemos agregar ruido a alguna letra o crear un patrón desconocido, y presionar el botón 'Empezar análisis'.</p>
+            <p>En la grilla de resultado iremos observando el avance de las matrices S de Hopfield.</p>
+            <p><strong>Set de prueba</strong></p>
+            <p>Para ejecutar una corrida de prueba, presionar el botón 'Test Armado'.</p>
+            <p>El mismo contiene: </p>
+            <ul>
+                <li>Alfabeto de prueba con las letras: ['Z', 'H', 'X']</li>
+                <li>Patrón para búsqueda con ruido</li>
+            </ul>
+            <p><strong>Botones extra:</strong></p>
+            <ul>
+                <li>'Borrar patrones': Elimina los patrones añadidos al alfabeto de comparación</li>
+                <li>'Limpiar grilla': Remueve todos las celdas seleccionadas de la grilla</li>
+            </ul>
+            <hr>
+        </div>
+    </header>
+    <div class="container" style="width: max-content;">
+        <div class="learning-container">
+            <h3>Patrones de entrada</h3>
+            <div class="learning-matrix">
+                <div class="row row-0">
+                    <div class="item item-0-0" onclick="selectSquare(0, 0)">
+
+                    </div>
+                    <div class="item item-0-1" onclick="selectSquare(0, 1)">
+                        
+                    </div>
+                    <div class="item item-0-2" onclick="selectSquare(0, 2)">
+                        
+                    </div>
+                    <div class="item item-0-3" onclick="selectSquare(0, 3)">
+                        
+                    </div>
+                    <div class="item item-0-4" onclick="selectSquare(0, 4)">
+                        
+                    </div>
+                </div>
+                <div class="row row-1">
+                    <div class="item item-1-0" onclick="selectSquare(1, 0)">
+
+                    </div>
+                    <div class="item item-1-1" onclick="selectSquare(1, 1)">
+                        
+                    </div>
+                    <div class="item item-1-2" onclick="selectSquare(1, 2)">
+                        
+                    </div>
+                    <div class="item item-1-3" onclick="selectSquare(1, 3)">
+                        
+                    </div>
+                    <div class="item item-1-4" onclick="selectSquare(1, 4)">
+                        
+                    </div>
+                </div>
+                <div class="row row-2">
+                    <div class="item item-2-0" onclick="selectSquare(2, 0)">
+
+                    </div>
+                    <div class="item item-2-1" onclick="selectSquare(2, 1)">
+                        
+                    </div>
+                    <div class="item item-2-2" onclick="selectSquare(2, 2)">
+                        
+                    </div>
+                    <div class="item item-2-3" onclick="selectSquare(2, 3)">
+                        
+                    </div>
+                    <div class="item item-2-4" onclick="selectSquare(2, 4)">
+                        
+                    </div>
+                </div>
+                <div class="row row-3">
+                    <div class="item item-3-0" onclick="selectSquare(3, 0)">
+
+                    </div>
+                    <div class="item item-3-1" onclick="selectSquare(3, 1)">
+                        
+                    </div>
+                    <div class="item item-3-2" onclick="selectSquare(3, 2)">
+                        
+                    </div>
+                    <div class="item item-3-3" onclick="selectSquare(3, 3)">
+                        
+                    </div>
+                    <div class="item item-3-4" onclick="selectSquare(3, 4)">
+                        
+                    </div>
+                </div>
+                <div class="row row-4">
+                    <div class="item item-4-0" onclick="selectSquare(4, 0)">
+
+                    </div>
+                    <div class="item item-4-1" onclick="selectSquare(4, 1)">
+                        
+                    </div>
+                    <div class="item item-4-2" onclick="selectSquare(4, 2)">
+                        
+                    </div>
+                    <div class="item item-4-3" onclick="selectSquare(4, 3)">
+                        
+                    </div>
+                    <div class="item item-4-4" onclick="selectSquare(4, 4)">
+                        
+                    </div>
+                </div>
+            </div>
+            <p id="patterns">Patrones aprendidos: 0 de 4</p>
+            <div class="button-group">
+                <button class="btn btn-info" id="learn-button" onclick="learnPattern(event)">Aprender patrón</button>
+                <button class="btn btn-success" id="start-button" onclick="startAlgorithm(event, 'real')" disabled="isEmpty()">Empezar análisis</button>
+                <button class="btn btn-warning" id="clear-button" onclick="clearPatterns(event)" disabled="isEmpty()">Borrar patrones</button>
+                <button class="btn btn-secondary" onclick="clearGrid(event)">Limpiar grilla</button>
+                <button class="btn btn-primary" onclick="startAlgorithm(event, 'test')">Test Armado</button>
+            </div>
+        </div>
+        <div class="output-container">
+            <br>
+            <h3>Resultado</h3>
+            <div class="output-matrix">
+                <div class="row row-0">
+                    <div class="itemO itemO-0-0">
+
+                    </div>
+                    <div class="itemO itemO-0-1">
+                        
+                    </div>
+                    <div class="itemO itemO-0-2">
+                        
+                    </div>
+                    <div class="itemO itemO-0-3">
+                        
+                    </div>
+                    <div class="itemO itemO-0-4">
+                        
+                    </div>
+                </div>
+                <div class="row row-1">
+                    <div class="itemO itemO-1-0">
+
+                    </div>
+                    <div class="itemO itemO-1-1">
+                        
+                    </div>
+                    <div class="itemO itemO-1-2">
+                        
+                    </div>
+                    <div class="itemO itemO-1-3">
+                        
+                    </div>
+                    <div class="itemO itemO-1-4">
+                        
+                    </div>
+                </div>
+                <div class="row row-2">
+                    <div class="itemO itemO-2-0">
+
+                    </div>
+                    <div class="itemO itemO-2-1">
+                        
+                    </div>
+                    <div class="itemO itemO-2-2">
+                        
+                    </div>
+                    <div class="itemO itemO-2-3">
+                        
+                    </div>
+                    <div class="itemO itemO-2-4">
+                        
+                    </div>
+                </div>
+                <div class="row row-3">
+                    <div class="itemO itemO-3-0">
+
+                    </div>
+                    <div class="itemO itemO-3-1">
+                        
+                    </div>
+                    <div class="itemO itemO-3-2">
+                        
+                    </div>
+                    <div class="itemO itemO-3-3">
+                        
+                    </div>
+                    <div class="itemO itemO-3-4">
+                        
+                    </div>
+                </div>
+                <div class="row row-4">
+                    <div class="itemO itemO-4-0">
+
+                    </div>
+                    <div class="itemO itemO-4-1">
+                        
+                    </div>
+                    <div class="itemO itemO-4-2">
+                        
+                    </div>
+                    <div class="itemO itemO-4-3">
+                        
+                    </div>
+                    <div class="itemO itemO-4-4">
+                        
+                    </div>
+                </div>
+            </div>
+            <h5 id="state"></h5>
+            <p id="iterations"></p>
+            <p id="final-result"></p>
+            <p id="processing-time"></p>
+            <p id="limit-reached"></p>
+        </div>
+    </div>
+</body>
+</html>
