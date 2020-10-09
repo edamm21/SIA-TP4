@@ -1,0 +1,6 @@
+{
+    "METHOD":"Kohonen",
+    "LEARNING_RATE":0.01,
+    "NEIGHBORHOOD_SIZE":5,
+    "DATA_PATH":"/home/iuke/Documents/ITBA/SIA/SIA-TP4/src/Ej1/data/europe.csv"
+}

@@ -1,6 +1,7 @@
 import csv
 import sys
 from kohonen import Kohonen
+from file_reader import get_json_data
 
 def is_number(elem):
     try:
@@ -9,8 +10,8 @@ def is_number(elem):
     except ValueError:
         return False
 
-def parseCSV():
-    data = open('./data/europe.csv', newline='')
+def parse_csv(path):
+    data = open(path, newline='')
     reader = csv.reader(data, delimiter=',', quotechar='|', quoting=csv.QUOTE_NONE)
     parsed_data = [[] for x in range(28)]
     parsed_country_names = ['' for x in range(28)]
@@ -26,15 +27,16 @@ def parseCSV():
         idx += 1
     return parsed_country_names, parsed_data
 
-if __name__ == '__main__':
-    algorithm = sys.argv[1].lower()
-    if algorithm == 'kohonen':
-        try:
-            epochs = int(sys.argv[2])
-            lr = float(sys.argv[3])
-            names, data = parseCSV()
-            k = Kohonen(names, data, lr)
-            k.train()
-        except IndexError:
-            print('Para ejecutar: python(3) main.py Kohonen <tasa_aprendizaje>')
+params = get_json_data()
+if params[0].lower() == 'kohonen':
+    learning_rate = params[1]
+    neighborhood_size = params[2]
+    path = params[3]
+    names, data = parse_csv(path)
+    k = Kohonen(names, data, learning_rate, neighborhood_size)
+    print('Training network...')
+    k.train()
+    print('Training finished')
+    print('Testing...')
+    k.test()
 
