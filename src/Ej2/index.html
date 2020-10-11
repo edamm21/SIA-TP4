@@ -5,10 +5,11 @@
     <link rel="stylesheet" href="style.css"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&display=swap" rel="stylesheet"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
     <script src="app.js" defer></script>
     <title>Letter creator</title>
 </head>
-<body>
+<body onload="initializeChart()">
     <header>
         <h2>TP4 - Ej 2 - Modelo de Hopfield</h2>
         <div class="instructions">
@@ -127,10 +128,10 @@
             <p id="patterns">Patrones aprendidos: 0 de 4</p>
             <div class="button-group">
                 <button class="btn btn-info" id="learn-button" onclick="learnPattern(event)">Aprender patrón</button>
-                <button class="btn btn-success" id="start-button" onclick="startAlgorithm(event, 'real')" disabled="isEmpty()">Empezar análisis</button>
+                <button class="btn btn-success" id="start-button" onclick="callAsyncFunction(event, 'real')" disabled="isEmpty()">Empezar análisis</button>
                 <button class="btn btn-warning" id="clear-button" onclick="clearPatterns(event)" disabled="isEmpty()">Borrar patrones</button>
                 <button class="btn btn-secondary" onclick="clearGrid(event)">Limpiar grilla</button>
-                <button class="btn btn-primary" onclick="startAlgorithm(event, 'test')">Test Armado</button>
+                <button class="btn btn-primary" onclick="callAsyncFunction(event, 'test')">Test Armado</button>
             </div>
         </div>
         <div class="output-container">
@@ -229,6 +230,51 @@
             <p id="processing-time"></p>
             <p id="limit-reached"></p>
         </div>
+        <div id="graph-container">
+            <canvas id="canvas" width="300" height="300"></canvas>
+        </div>
     </div>
+    
+    <script>
+        
+        let chart; 
+        let myChart;
+
+        async function callAsyncFunction(event, type) {
+            event.preventDefault();
+            event.stopPropagation();
+            await startAlgorithm(type);
+            energyGetterInterval();
+        }
+
+        function initializeChart() {
+            chart = document.getElementById('canvas').getContext('2d');
+            myChart = new Chart(chart, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Energía por iteración',
+                        data: [],
+                        backgroundColor: 'rgba(0, 0, 0, 0)',
+                        borderColor: 'rgba(53, 82, 74, 1.0)',
+                        lineTension: 0.1
+                    }]
+                },
+                
+            });
+        }
+
+        function energyGetterInterval() {
+            let data = getEnergyData();
+            labels = [];
+            for(let i = 0 ; i < data.length ; i++) {
+                labels.push('Iteración ' + i);
+            }
+            myChart.data.datasets[0].data = data;                        
+            myChart.data.labels = labels;
+            myChart.update();
+        }
+    </script>
 </body>
 </html>
