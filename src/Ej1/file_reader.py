@@ -6,7 +6,7 @@ with open(os.getcwd() + "/input.json") as file:
     data = json.load(file)
     method = data['METHOD']
     lr = data['LEARNING_RATE']
-    n_size = data['NEIGHBORHOOD_SIZE']
+    n_size = data['R_NEIGHBORHOOD']
     path = data['DATA_PATH']
 
 def get_json_data():
