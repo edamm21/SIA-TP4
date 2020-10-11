@@ -68,6 +68,7 @@ async function startAlgorithm(type) {
     let pattern = [];
     if(type === 'test') {
         pattern = generateRandomPattern();
+        alphabet = testAlphabet;
         drawTestPattern(pattern);
     } else {
         let items = Array.from(document.getElementsByClassName('item'));
@@ -181,6 +182,12 @@ function calculateEnergy(W, S) {
         }
     }
     E *= -0.5;
+    if(energyPerIteration.length > 2) {
+        let length = energyPerIteration.length;
+        if(energyPerIteration[length - 1] === E && energyPerIteration[length - 2]) {
+            return Infinity;
+        }
+    }
     energyPerIteration.push(E);
     console.log('calc', energyPerIteration);
     return E;
@@ -200,10 +207,11 @@ async function hopfieldAlgorithm(pattern) {
     console.log('Processing...');
     let startTime = new Date();
     fillInResult(S);
+    let e = 0.0;
     document.getElementById('state').innerText = 'Procesando...';
-    while(canAdvance(S, prevS) && iterations < 1000) {
+    while(canAdvance(S, prevS) && iterations < 1000 && e !== Infinity) {
         prevS = S;
-        calculateEnergy(weights, prevS);
+        e = calculateEnergy(weights, prevS);
         S = sign(matrixProduct(weights, prevS));
         fillInResult(S);
         iterations++;
@@ -216,7 +224,10 @@ async function hopfieldAlgorithm(pattern) {
     let endTime = new Date();
     let diff = endTime - startTime - (1000 * iterations);
     document.getElementById('processing-time').innerHTML = 'Tiempo de ejecución: ' + diff + 'ms.';
-    if(iterations < 1000 && !answerFound)
+    console.log('e final')
+    if(e === Infinity)
+        document.getElementById('limit-reached').innerHTML = 'El programa se ha cortado automáticamente ya que se ha llegado a un ciclo entre patrones con energía constante sin respuesta.'
+    else if(iterations < 1000 && !answerFound)
         document.getElementById('limit-reached').innerHTML = 'El programa se ha cortado automáticamente ya que se ha llegado a un estado repetido sin respuesta.'
     else if(iterations === 1000 && !answerFound)
         document.getElementById('limit-reached').innerHTML = 'El programa se ha cortado automáticamente por alcanzar el límite de 1000 iteraciones sin reconocer un patrón.'
