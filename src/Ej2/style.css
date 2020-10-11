@@ -76,4 +76,11 @@ header {
 
 .btn {
     margin-bottom: 10px;
+    width: 100%;
+}
+
+#graph-container {
+    width: 400px;
+    height: 400px;
+    margin-left: 50px;
 }

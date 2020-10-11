@@ -1,7 +1,9 @@
+const MATRIX_ELEMENTS = 25;
 let patterns = 0;
 let alphabet = [];
 let weights = [];
 let answerFound = false;
+let energyPerIteration = [];
 let testAlphabet = [
     [1,  1,  1,  1,  1, // Z
     -1, -1, -1,  1, -1,
@@ -19,11 +21,7 @@ let testAlphabet = [
     -1,  1, -1,  1, -1,
      1, -1, -1, -1,  1],
 ];
-testPattern = [  1, -1, -1, -1,  1,
-                 1, -1, -1, -1, -1,
-                -1, -1,  1, -1,  1,
-                -1, -1, -1, -1, -1,
-                 1, -1, -1, -1,  1]
+testPattern = []
 
 function selectSquare(i, j) {
     let item = document.getElementsByClassName(`item-${i}-${j}`)[0];
@@ -52,15 +50,24 @@ function learnPattern(event) {
     document.getElementById('clear-button').disabled = false;
 }
 
-async function startAlgorithm(event, type) {
-    event.preventDefault();
-    event.stopPropagation();
+function generateRandomPattern() {
+    let numberOfOnes = Math.floor(Math.random() * MATRIX_ELEMENTS);
+    let randomIndexes = new Set();
+    let out = [];
+    for(let i = 0 ; i < 25 ; i++) {
+        out.push(-1);
+    }
+    while(randomIndexes.size < numberOfOnes) {
+        randomIndexes.add(Math.floor(Math.random() * MATRIX_ELEMENTS));
+    }
+    randomIndexes.forEach(idx => out[idx] = 1.0);
+    return out;
+}
+
+async function startAlgorithm(type) {
     let pattern = [];
     if(type === 'test') {
-        for(let i = 0 ; i < testAlphabet.length ; i++) {
-            alphabet.push(testAlphabet[i]);
-        }
-        pattern = testPattern;
+        pattern = generateRandomPattern();
         drawTestPattern(pattern);
     } else {
         let items = Array.from(document.getElementsByClassName('item'));
@@ -156,13 +163,35 @@ function canAdvance(S, prevS) {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
+}
+
+function getEnergyData() {
+    return energyPerIteration;
+}
+
+function clearEnergies() {
+    energyPerIteration = [];
+}
+
+function calculateEnergy(W, S) {
+    let E = 0.0;
+    for(let i = 0 ; i < W.length ; i++) {
+        for(let j = 0 ; j < W.length ; j++) {
+            E += W[i][j] * S[i] * S[j];
+        }
+    }
+    E *= -0.5;
+    energyPerIteration.push(E);
+    console.log('calc', energyPerIteration);
+    return E;
+}
 
 async function hopfieldAlgorithm(pattern) {
     if(pattern.length != alphabet[0].length) {
         console.log('Error');
         return;
     }
+    clearEnergies();
     clearOutput();
     let S = pattern;
     let prevS = [];
@@ -174,12 +203,14 @@ async function hopfieldAlgorithm(pattern) {
     document.getElementById('state').innerText = 'Procesando...';
     while(canAdvance(S, prevS) && iterations < 1000) {
         prevS = S;
+        calculateEnergy(weights, prevS);
         S = sign(matrixProduct(weights, prevS));
         fillInResult(S);
         iterations++;
         await sleep(1000);
         document.getElementById('iterations').innerText = `Número de iteraciones ${iterations}`;
     }
+    calculateEnergy(weights, S);
     document.getElementById('state').innerText = 'Listo!';
     document.getElementById('final-result').innerHTML = answerFound ? 'Patrón reconocido' : 'Patrón no reconocido';
     let endTime = new Date();
@@ -190,6 +221,7 @@ async function hopfieldAlgorithm(pattern) {
     else if(iterations === 1000 && !answerFound)
         document.getElementById('limit-reached').innerHTML = 'El programa se ha cortado automáticamente por alcanzar el límite de 1000 iteraciones sin reconocer un patrón.'
     fillInResult(S);
+    console.log('final energies: ', getEnergyData());
 }
 
 function runTest(event) {
