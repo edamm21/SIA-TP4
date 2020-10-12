@@ -16,7 +16,7 @@ def pre_process(grid):
     return array
 
 
-CSV_PATH = 'files/europe_positive.csv'
+CSV_PATH = 'files/europe.csv'
 
 my_csv = CSV_PATH
 df = pd.read_csv(my_csv)

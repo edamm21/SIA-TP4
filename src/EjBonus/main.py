@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-CSV_PATH = 'files/europe_positive.csv'
+CSV_PATH = 'files/europe.csv'
 
 my_csv = CSV_PATH
 df = pd.read_csv(my_csv)
