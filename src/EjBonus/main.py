@@ -1,22 +1,24 @@
 import plotly.express as px
 from sklearn.decomposition import PCA
-from sklearn import datasets
-from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 CSV_PATH = 'files/europe_positive.csv'
 
 my_csv = CSV_PATH
 df = pd.read_csv(my_csv)
+to_boxplot = pd.DataFrame(data=df)
+to_boxplot.plot(kind='box')
+plt.show()
 features = ['Area','GDP','Inflation','Life.expect','Military','Pop.growth','Unemployment']
 X = df[features]
-
 pca = PCA()
 components = pca.fit_transform(X)
 
-loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
+print('Primer componente principal: {}'.format(components[0]))
 
+loadings = pca.components_.T * np.sqrt(pca.explained_variance_)
 fig = px.scatter(components, x=0, y=1, color=df["Country"])
 
 # Graph vectors
