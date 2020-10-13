@@ -1,6 +1,7 @@
 import csv
 import sys
 from kohonen import Kohonen
+from oja import Oja
 from file_reader import get_json_data
 
 def is_number(elem):
@@ -23,7 +24,7 @@ def parse_csv(path):
                     parsed_data[idx - 1].append(float(elem))
                 else:
                     parsed_country_names[idx - 1] = elem.replace('"', '')
-                
+
         idx += 1
     return parsed_country_names, parsed_data
 
@@ -39,4 +40,13 @@ if params[0].lower() == 'kohonen':
     print('Training finished')
     print('Testing...')
     k.test()
-
+if params[0].lower() == 'oja':
+    learning_rate = params[1]
+    path = params[3]
+    names, data = parse_csv(path)
+    k = Oja(names, data, learning_rate)
+    print('Training network...')
+    k.train()
+    print('Training finished')
+    print('Testing...')
+    k.test(names, data)
