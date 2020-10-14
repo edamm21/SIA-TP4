@@ -4,12 +4,16 @@ import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
 import statistics
+import csv
+from sklearn import preprocessing as pp
+from scipy.spatial import distance
 
 class Kohonen:
 
     def __init__(self, names, data, learning_rate, neighbors):
         self.names = names
-        self.data = self.pre_process(data)
+        # self.data = slef.pre_process(data)
+        self.data = pp.scale(data)
         self.learning_rate = learning_rate
         self.input_neurons = len(data[0])
         self.epochs = 500 * self.input_neurons 
@@ -40,13 +44,14 @@ class Kohonen:
         neighbors_to_drag = []
         for i in range(len(self.output_grid)):
             for j in range(len(self.output_grid[0])):
-                curr_neuron = [i, j]
+                curr_neuron = (i, j)
                 if self.close_enough(bmu, curr_neuron, proximity):
                     neighbors_to_drag.append(curr_neuron)
         return neighbors_to_drag
 
     def close_enough(self, this, other, proximity):
-        neighborhood_influence = math.exp(-(self.calculate_distance(this, other)**2)/(2 * proximity**2))
+        #neighborhood_influence = math.exp(-(self.calculate_distance(this, other)**2)/(2 * proximity**2))
+        neighborhood_influence = np.linalg.norm(np.subtract(this, other))
         return neighborhood_influence < proximity
 
     # euclidean
@@ -61,7 +66,8 @@ class Kohonen:
         bmu = (0, 0)
         for i in range(len(self.output_grid)):
             for j in range(len(self.output_grid[0])):
-                curr_distance = self.calculate_distance(_input, self.output_grid[i][j])
+                #curr_distance = self.calculate_distance(_input, self.output_grid[i][j])
+                curr_distance = distance.euclidean(_input, self.output_grid[i][j])
                 if curr_distance < min_distance:
                     min_distance = curr_distance
                     bmu = (i, j)
@@ -71,15 +77,16 @@ class Kohonen:
         for neighbor in N_k_t:
             row  = neighbor[0]
             col  = neighbor[1]
-            diff = [n_t * (x_p_i - w_i) for x_p_i, w_i in zip(X_p, self.output_grid[row][col])]
-            add  = [w_i + diff_i for w_i, diff_i in zip(self.output_grid[row][col], diff)]
-            self.output_grid[row][col] = add
+            #diff = [n_t * (x_p_i - w_i) for x_p_i, w_i in zip(X_p, self.output_grid[row][col])]
+            #add  = [w_i + diff_i for w_i, diff_i in zip(self.output_grid[row][col], diff)]
+            self.output_grid[row][col] = self.output_grid[row][col] + n_t * (X_p - self.output_grid[row][col])
     
     # ref: https://towardsdatascience.com/kohonen-self-organizing-maps-a29040d688da
     def train(self):
         indexes = list(range(0, len(self.data)))
         t = 1
         _lambda = 100 # constante de tiempo
+        self.epochs = 1000
         for epoch in range(self.epochs):
             random.shuffle(indexes)
             for idx in indexes:
@@ -102,6 +109,7 @@ class Kohonen:
         bmus = [None] * len(self.data)
         qtys = [0] * (len(self.output_grid)**2)
         names_by_neuron = {}
+        print('+===== RESULTADOS =====+')
         for i in range(len(self.data)):
             bmus[i] = self.get_bmu(self.data[i])
             if str(bmus[i]) in names_by_neuron:
@@ -110,8 +118,12 @@ class Kohonen:
                 names_by_neuron[str(bmus[i])] = [self.names[i]] 
             idx_qty = bmus[i][0] * len(self.output_grid) + bmus[i][1]
             qtys[idx_qty] += 1
-            print('{}: neuron {}'.format(self.names[i], bmus[i]))
-        print(names_by_neuron)
+            #print('|{}: neuron {}|'.format(self.names[i], bmus[i]))
+        print('Países agrupados por neurona')
+        dict_keys = names_by_neuron.items()
+        sorted_by_keys = dict(sorted(dict_keys))
+        print(sorted_by_keys)
+        self.group_by_neighborhood(sorted_by_keys)
         qtys = [i * 50 for i in qtys if i > 0]
         activated_neurons = list(set(bmus));
         activated_neurons.sort()
@@ -122,13 +134,49 @@ class Kohonen:
         ax.set_xlabel('Coordenada x - Neuronas')
         ax.set_ylabel('Coordenada y - Neuronas')
         for i in range(len(activated_neurons)):
-            ax.annotate(int(qtys[i] / 50), (activated_neurons[i]))
+            x = activated_neurons[i][0]
+            y = activated_neurons[i][1]
+            d_y = 0.1 - i * 0.05
+            ax.annotate(list(names_by_neuron.values())[i], xy=activated_neurons[i], fontsize=7, xytext=(x, y+d_y))
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
         plt.legend(fontsize = 8, loc = 'upper left', markerscale = 0.5)
         plt.show()
         self.create_u_matrix()
 
+    def group_by_neighborhood(self, neuron_country_dictionary_sorted):
+        neighbors_dict = {}
+        for key in neuron_country_dictionary_sorted:
+            neighbors_dict[key] = []
+        for i in range(len(self.output_grid)):
+            for j in range(len(self.output_grid)):
+                for key in neuron_country_dictionary_sorted:
+                    if(str((i,j)) == key):
+                        neighbors_dict[key].extend(self.search_adjacent(i, j, neuron_country_dictionary_sorted))
+        print('Vecinos por neurona')
+        print(neighbors_dict)
+
+    def is_valid_in_matrix(self, tuple):
+        i = tuple[0]
+        j = tuple[1]
+        return i >= 0 and i < len(self.output_grid) and j >= 0 and j < len(self.output_grid)
+
+    def search_adjacent(self, i, j, neuron_country_dictionary_sorted):
+        neighbors = []
+        n = (i-1, j)
+        s = (i+1, j)
+        w = (i, j-1)
+        e = (i, j+1)
+        if self.is_valid_in_matrix(n) and str(n) in neuron_country_dictionary_sorted:
+            neighbors.extend(neuron_country_dictionary_sorted[str(n)])
+        if self.is_valid_in_matrix(s) and str(s) in neuron_country_dictionary_sorted:
+            neighbors.extend(neuron_country_dictionary_sorted[str(s)])
+        if self.is_valid_in_matrix(e) and str(e) in neuron_country_dictionary_sorted:
+            neighbors.extend(neuron_country_dictionary_sorted[str(e)])
+        if self.is_valid_in_matrix(w) and str(w) in neuron_country_dictionary_sorted:
+            neighbors.extend(neuron_country_dictionary_sorted[str(w)])
+        return neighbors
+        
     def create_u_matrix(self):
         u_array = [0.0] * (len(self.output_grid)**2)
         all_points = [None] * (len(self.output_grid)**2)

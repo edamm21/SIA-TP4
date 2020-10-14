@@ -8,8 +8,6 @@ CSV_PATH = 'files/europe.csv'
 
 my_csv = CSV_PATH
 df = pd.read_csv(my_csv)
-print(max(list(df['Area'])))
-exit()
 to_boxplot = pd.DataFrame(data=df)
 to_boxplot.plot(kind='box')
 plt.show()
