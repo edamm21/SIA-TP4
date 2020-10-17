@@ -56,10 +56,12 @@ class Oja:
         return loadings_s.transpose()[0], y1_s
 
     def train(self, path):
+        np.set_printoptions(suppress=True,linewidth=np.nan)
         real_w, real_scores = self.pca(path)
         data = self.data
         t = 1
         weight_error = np.zeros((self.epochs, len(self.w)))
+        weight_error_inv = np.zeros((self.epochs, len(self.w)))
         for n in range(self.epochs):
             random.shuffle(data)
             for x in data:
@@ -69,15 +71,23 @@ class Oja:
                     self.w[j] += (self.learning_rate/t) * (y * x[j] - y * y * self.w[j])
                 t += 1
             weight_error[n] = abs(self.w - real_w)
-        plt.plot(range(self.epochs), weight_error)
+            weight_error_inv[n] = abs(self.w + real_w)
+
+        # Si los signos quedaron dados vuelta, invertirlos
+        if self.w[0] * real_w[0] < 0:
+            self.w = [-self.w[i] for i in range(len(self.w))]
+            print("Weights signs had to be inverted to match expected order")
+            weight_error = weight_error_inv
+        w_names = ['Area','GDP','Inflation','Life.expect','Military','Pop.growth','Unemployment']
+        for i in range(len(weight_error[0])):
+            plt.plot(range(self.epochs), weight_error[:,i], label="W{} - {}".format(i+1, w_names[i]))
+        plt.legend()
         plt.xlabel("Epochs")
         plt.ylabel("Error")
         plt.title('Weight error')
         plt.show()
 
-        # Si los signos quedaron dados vuelta, invertirlos. El error ya fue calculado así que fue
-        if self.w[0] * real_w[0] < 0:
-            self.w = [-self.w[i] for i in range(len(self.w))]
+
         print("Final weight error:")
         print(weight_error[-1])
 
