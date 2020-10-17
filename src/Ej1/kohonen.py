@@ -16,13 +16,13 @@ class Kohonen:
         self.data = pp.scale(data)
         self.learning_rate = learning_rate
         self.input_neurons = len(data[0])
-        self.epochs = 500 * self.input_neurons 
+        self.epochs = 500 * self.input_neurons
         self.neighbors = neighbors
         self.output_grid = self.initialize_output_grid(self.input_neurons, self.neighbors)
-    
+
     def pre_process(self, grid):
         normalized_columns = []
-        for i in range(len(grid[0])):    
+        for i in range(len(grid[0])):
             entire_col = [row[i] for row in grid]
             media = sum(entire_col) / len(entire_col)
             std = statistics.stdev(entire_col)
@@ -31,7 +31,7 @@ class Kohonen:
         array = np.array([np.array(xi) for xi in normalized_columns])
         array = array.transpose()
         return list(array)
-         
+
     def initialize_output_grid(self, size, neighborhood_size):
         grid = [[[0 for x in range(size)] for y in range(neighborhood_size)] for z in range(neighborhood_size)]
         for i in range(neighborhood_size):
@@ -39,7 +39,7 @@ class Kohonen:
                 for k in range(size):
                     grid[i][j][k] = random.uniform(-1.0, 1.0)
         return grid
-    
+
     def get_close_neurons(self, bmu, proximity):
         neighbors_to_drag = []
         for i in range(len(self.output_grid)):
@@ -80,7 +80,7 @@ class Kohonen:
             #diff = [n_t * (x_p_i - w_i) for x_p_i, w_i in zip(X_p, self.output_grid[row][col])]
             #add  = [w_i + diff_i for w_i, diff_i in zip(self.output_grid[row][col], diff)]
             self.output_grid[row][col] = self.output_grid[row][col] + n_t * (X_p - self.output_grid[row][col])
-    
+
     # ref: https://towardsdatascience.com/kohonen-self-organizing-maps-a29040d688da
     def train(self):
         indexes = list(range(0, len(self.data)))
@@ -115,7 +115,7 @@ class Kohonen:
             if str(bmus[i]) in names_by_neuron:
                 names_by_neuron[str(bmus[i])].append(self.names[i])
             else:
-                names_by_neuron[str(bmus[i])] = [self.names[i]] 
+                names_by_neuron[str(bmus[i])] = [self.names[i]]
             idx_qty = bmus[i][0] * len(self.output_grid) + bmus[i][1]
             qtys[idx_qty] += 1
             #print('|{}: neuron {}|'.format(self.names[i], bmus[i]))
@@ -136,8 +136,8 @@ class Kohonen:
         for i in range(len(activated_neurons)):
             x = activated_neurons[i][0]
             y = activated_neurons[i][1]
-            d_y = 0.1 - i * 0.05
-            ax.annotate(list(names_by_neuron.values())[i], xy=activated_neurons[i], fontsize=7, xytext=(x, y+d_y))
+            d_y = 0.1 - i * 0.01
+            ax.annotate(list(sorted_by_keys.values())[i], xy=activated_neurons[i], fontsize=7, xytext=(x, y+d_y))
         plt.xlim(x_min, x_max)
         plt.ylim(y_min, y_max)
         plt.legend(fontsize = 8, loc = 'upper left', markerscale = 0.5)
@@ -176,7 +176,7 @@ class Kohonen:
         if self.is_valid_in_matrix(w) and str(w) in neuron_country_dictionary_sorted:
             neighbors.extend(neuron_country_dictionary_sorted[str(w)])
         return neighbors
-        
+
     def create_u_matrix(self):
         u_array = [0.0] * (len(self.output_grid)**2)
         all_points = [None] * (len(self.output_grid)**2)

@@ -16,7 +16,7 @@ class Oja:
         self.input_neurons = len(data[0])
         self.w = [0 for w in range(self.input_neurons)]
         for i in range(len(self.w)):
-            self.w[i] = random.uniform(-0.5, 0.5)
+            self.w[i] = random.uniform(-1, 1)
         self.epochs = 5000
 
     def pre_process(self, grid):
