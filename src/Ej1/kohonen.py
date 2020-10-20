@@ -85,13 +85,13 @@ class Kohonen:
     def train(self):
         indexes = list(range(0, len(self.data)))
         t = 1
-        _lambda = 100 # constante de tiempo
-        self.epochs = 1000
+        _lambda = 1000 # constante de tiempo, elegida probando para que no converja tan rapido
         for epoch in range(self.epochs):
             random.shuffle(indexes)
             for idx in indexes:
                 n_t = self.learning_rate * math.exp(-t/_lambda) # le puse el nombre como en el ppt n(t)
-                R_t = self.neighbors * math.exp(-t/_lambda) + 1 # le puse el nombre como en el ppt R(t) ==> entiendo que dice que tiene que converger a 1 al final por eso el +1
+                possible_R = self.neighbors * math.exp(-t/_lambda)
+                R_t = possible_R if possible_R > 1.0 else 1.0 # le puse el nombre como en el ppt R(t) ==> entiendo que dice que tiene que converger a 1 al final por eso el +1
                 bmu = self.get_bmu(self.data[idx])
                 close_neurons = self.get_close_neurons(bmu, R_t)
                 self.update_weights(close_neurons, n_t, self.data[idx])
