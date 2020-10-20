@@ -50,9 +50,7 @@ class Kohonen:
         return neighbors_to_drag
 
     def close_enough(self, this, other, proximity):
-        #neighborhood_influence = math.exp(-(self.calculate_distance(this, other)**2)/(2 * proximity**2))
-        neighborhood_influence = np.linalg.norm(np.subtract(this, other))
-        return neighborhood_influence < proximity
+        return self.calculate_distance(this, other) < proximity
 
     # euclidean
     def calculate_distance(self, _input, neuron):
@@ -66,8 +64,7 @@ class Kohonen:
         bmu = (0, 0)
         for i in range(len(self.output_grid)):
             for j in range(len(self.output_grid[0])):
-                #curr_distance = self.calculate_distance(_input, self.output_grid[i][j])
-                curr_distance = distance.euclidean(_input, self.output_grid[i][j])
+                curr_distance = self.calculate_distance(_input, self.output_grid[i][j])
                 if curr_distance < min_distance:
                     min_distance = curr_distance
                     bmu = (i, j)
@@ -77,8 +74,6 @@ class Kohonen:
         for neighbor in N_k_t:
             row  = neighbor[0]
             col  = neighbor[1]
-            #diff = [n_t * (x_p_i - w_i) for x_p_i, w_i in zip(X_p, self.output_grid[row][col])]
-            #add  = [w_i + diff_i for w_i, diff_i in zip(self.output_grid[row][col], diff)]
             self.output_grid[row][col] = self.output_grid[row][col] + n_t * (X_p - self.output_grid[row][col])
 
     # ref: https://towardsdatascience.com/kohonen-self-organizing-maps-a29040d688da
