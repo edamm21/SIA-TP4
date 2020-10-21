@@ -12,8 +12,7 @@ class Kohonen:
 
     def __init__(self, names, data, learning_rate, neighbors):
         self.names = names
-        # self.data = slef.pre_process(data)
-        self.data = pp.scale(data)
+        self.data = self.pre_process(data)
         self.learning_rate = learning_rate
         self.input_neurons = len(data[0])
         self.epochs = 500 * self.input_neurons
@@ -113,7 +112,6 @@ class Kohonen:
                 names_by_neuron[str(bmus[i])] = [self.names[i]]
             idx_qty = bmus[i][0] * len(self.output_grid) + bmus[i][1]
             qtys[idx_qty] += 1
-            #print('|{}: neuron {}|'.format(self.names[i], bmus[i]))
         print('Países agrupados por neurona')
         dict_keys = names_by_neuron.items()
         sorted_by_keys = dict(sorted(dict_keys))
@@ -209,7 +207,7 @@ class Kohonen:
                 if i+1 < len(self.output_grid) and j+1 < len(self.output_grid): #SE
                     added += 1
                     distance_total += self.calculate_distance(current_neuron_weights, self.output_grid[i+1][j+1])
-                distance = distance_total / added
+                distance = distance_total / added if added > 0.0 else 100
                 u_array[i * len(self.output_grid) + j] += distance
         normalize_colors = colors.Normalize(vmin=min(u_array), vmax=max(u_array))
         plt.scatter(*zip(*all_points), c=u_array, s=50);

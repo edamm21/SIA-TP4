@@ -189,7 +189,6 @@ function calculateEnergy(W, S) {
         }
     }
     energyPerIteration.push(E);
-    console.log('calc', energyPerIteration);
     return E;
 }
 
@@ -224,7 +223,6 @@ async function hopfieldAlgorithm(pattern) {
     let endTime = new Date();
     let diff = endTime - startTime - (1000 * iterations);
     document.getElementById('processing-time').innerHTML = 'Tiempo de ejecución: ' + diff + 'ms.';
-    console.log('e final')
     if(e === Infinity)
         document.getElementById('limit-reached').innerHTML = 'El programa se ha cortado automáticamente ya que se ha llegado a un ciclo entre patrones con energía constante sin respuesta.'
     else if(iterations < 1000 && !answerFound)

@@ -1,5 +1,5 @@
 {
-    "METHOD":"Oja",
+    "METHOD":"kohonen",
     "LEARNING_RATE":0.5,
     "R_NEIGHBORHOOD": 5,
     "DATA_PATH":"src/Ej1/data/europe.csv"
